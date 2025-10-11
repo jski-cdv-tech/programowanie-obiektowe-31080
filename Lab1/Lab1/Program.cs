@@ -1,4 +1,5 @@
-﻿const int requiredAge = 16;
+﻿// Exercise from first PDF file
+/*const int requiredAge = 16;
 const int beerRequiredAge = 18;
 const int simRequiredAge = 14;
 const string accessDenied = "You must be at least 16 years old";
@@ -23,4 +24,29 @@ else if (age >= simRequiredAge)
 else
 {
     Console.WriteLine(accessAllowedExceptSim);
+}*/
+
+// Exercise 1 from second PDF file
+/*const string correctPassword = "admin123";
+string password;
+do
+{
+    Console.Write("Enter password: ");
+    password = Console.ReadLine();
+} while (password != correctPassword);
+Console.WriteLine("Logged in successfully");*/
+
+// Exercise 2 from second PDF file
+/*int number;
+do
+{
+    Console.Write("Write number greater than zero: ");
+    number = int.Parse(Console.ReadLine());
+} while (number <= 0);
+Console.WriteLine($"Yes, number {number} is greater than zero");*/
+
+// Exercise 3 from second PDF file
+string[] cities = { "Poznań", "Warszawa", "Gdańsk", "Leszno", "Opole" };
+foreach (var city in cities) {
+    Console.WriteLine(city);
 }
