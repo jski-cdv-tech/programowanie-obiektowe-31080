@@ -2,7 +2,7 @@ namespace Lab4;
 
 public abstract class Vehicle
 {
-    public int Id { get; protected set; }
+    public int Id { get; set; }
     public double EngineCapacity { get; protected set; }
     public int Year { get; protected set; }
     public string Model { get; protected set; }
@@ -12,6 +12,13 @@ public abstract class Vehicle
         EngineCapacity = engineCapacity;
         Model = model;
         Year = year;
+    }
+
+    public void Update(double newEngineCapacity, string newModel, int newYear)
+    {
+        EngineCapacity = newEngineCapacity;
+        Model = newModel;
+        Year = newYear;
     }
 
     public virtual void Start()

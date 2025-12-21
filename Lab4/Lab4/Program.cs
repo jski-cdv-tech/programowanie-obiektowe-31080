@@ -1,29 +1,22 @@
 ﻿using Lab4;
+using Lab4.Database;
+using Microsoft.EntityFrameworkCore;
 
-// Car car1 = new Car(model: "Audi", year: 2023, engineCapacity: 2.0);
-// Car car2 = new Car(model: "VW", year: 1998, engineCapacity: 1.8);
-// Car car3 = new Car(model: "Fiat", year: 2011, engineCapacity: 1.4);
-
-// car1.ShowMe();
-// car2.ShowMe();
-// car3.ShowMe();
-// var bike1 = new Bike(engineCapacity: 0.6);
-
-// StartAnyVehicle(car1);
-// StartAnyVehicle(bike1);
-
-// void StartAnyVehicle(Vehicle vehicle)
-// {
-//     vehicle.Start();
-// }
-
-//Console.WriteLine(car1.Model);
-
+var db = new VehiclesDb();
 bool run = true;
 do
 {
     Console.WriteLine("CAR SHOP");
-    Console.WriteLine("[1] Show all, [2] Search by year, [3] Search by model, [4] Search by engine capacity, [5] Add car, [0] Exit");
+    Console.WriteLine(
+        "[1] Show all, "
+        + "[2] Search by year, "
+        + "[3] Search by model, "
+        + "[4] Search by engine capacity, "
+        + "[5] Add vehicle, "
+        + "[6] Remove vehicle, "
+        + "[7] Edit vehicle, "
+        + "[0] Exit"
+    );
     var input = Console.ReadKey().KeyChar;
     Console.WriteLine();
     switch (input)
@@ -43,6 +36,12 @@ do
         case '5':
             AddNewVehicle();
             break;
+        case '6':
+            RemoveVehicle();
+            break;
+        case '7':
+            EditVehicle();
+            break;
         case '0':
             run = false;
             break;
@@ -56,11 +55,21 @@ Console.WriteLine("Goodbye");
 
 void DisplayVehicleModel()
 {
-    Console.WriteLine("Our vehicles");
-    foreach (var vehicle in Database.Vehicles)
+    Console.WriteLine("Our vehicles:");
+    Console.WriteLine();
+    foreach (var vehicle in db.Vehicles)
     {
-        Console.WriteLine(vehicle.Model);
+        if (vehicle is Car)
+        {
+            Console.Write("Car ");
+        }
+        else
+        {
+            Console.Write("Bike ");
+        }
+        Console.WriteLine($"{vehicle.Id}: {vehicle.Model}, {vehicle.Year}, {vehicle.EngineCapacity}");
     }
+    Console.WriteLine();
 }
 
 void SearchByYear()
@@ -73,7 +82,7 @@ void SearchByYear()
         SearchByYear();
         return;
     }
-    var vehicles = Database.Vehicles.Where(vehicle => vehicle.Year == year);
+    var vehicles = db.Vehicles.Where(vehicle => vehicle.Year == year);
     if (!vehicles.Any())
     {
         Console.WriteLine("No vehicles found");
@@ -100,7 +109,7 @@ void SearchByModel()
     {
         model = model.ToLower();
     }
-    var vehicles = Database.Vehicles.Where(vehicle => vehicle.Model.ToLower() == model);
+    var vehicles = db.Vehicles.Where(vehicle => vehicle.Model.ToLower() == model);
     if (!vehicles.Any())
     {
         Console.WriteLine("No vehicles found");
@@ -123,7 +132,7 @@ void SearchByEngineCapacity()
         Console.WriteLine("Invalid engine capacity");
         return;
     }
-    var vehicles = Database.Vehicles.Where(vehicle => vehicle.EngineCapacity == engineCapacity);
+    var vehicles = db.Vehicles.Where(vehicle => vehicle.EngineCapacity == engineCapacity);
     if (!vehicles.Any())
     {
         Console.WriteLine("No vehicles found");
@@ -176,5 +185,91 @@ void AddNewVehicle()
     {
         v = new Bike(engineCapacity, model, year);
     }
-    Database.Vehicles.Add(v);
+    db.Add(v);
+    db.SaveChanges();
+}
+
+void RemoveVehicle()
+{
+    Console.WriteLine("B for bike, C for car");
+    var input = Console.ReadKey().KeyChar.ToString().ToLower();
+    if (input is not ("b" or "c"))
+    {
+        Console.WriteLine("Invalid vehicle type");
+        return;
+    }
+    Console.WriteLine();
+    Console.Write("Enter vehicle ID: ");
+    if (!int.TryParse(Console.ReadLine(), out int id))
+    {
+        Console.WriteLine("Invalid vehicle ID");
+        return;
+    }
+    Console.WriteLine();
+    if (input == "b")
+    {
+        db.Bikes.Where(b => b.Id == id).ExecuteDelete();
+    }
+    else
+    {
+        db.Cars.Where(c => c.Id == id).ExecuteDelete();
+    }
+    db.SaveChanges();
+}
+
+void EditVehicle()
+{
+    Console.WriteLine("B for bike, C for car");
+    var input = Console.ReadKey().KeyChar.ToString().ToLower();
+    if (input is not ("b" or "c"))
+    {
+        Console.WriteLine("Invalid vehicle type");
+        return;
+    }
+    Console.WriteLine();
+    Console.Write("Enter vehicle ID: ");
+    if (!int.TryParse(Console.ReadLine(), out int id))
+    {
+        Console.WriteLine("Invalid vehicle ID");
+        return;
+    }
+    Console.WriteLine();
+    if (input == "b" && !db.Bikes.Where(b => b.Id == id).Any())
+    {
+        Console.WriteLine($"Bike with ID {id} doesn't exist");
+        return;
+    }
+    else if (input == "c" && !db.Cars.Where(b => b.Id == id).Any())
+    {
+        Console.WriteLine($"Car with ID {id} doesn't exist");
+        return;
+    }
+    Console.Write("Enter new model name: ");
+    string? model = Console.ReadLine();
+    if (string.IsNullOrWhiteSpace(model))
+    {
+        Console.WriteLine("Invalid model");
+        return;
+    }
+    Console.Write("Enter new engine capacity: ");
+    if (!double.TryParse(Console.ReadLine(), out double engineCapacity))
+    {
+        Console.WriteLine("Invalid engine capacity");
+        return;
+    }
+    Console.Write("Enter new production year: ");
+    if (!int.TryParse(Console.ReadLine(), out int year))
+    {
+        Console.WriteLine("Invalid production year");
+        return;
+    }
+    if (input == "c")
+    {
+        db.Cars.Where(c => c.Id == id).First().Update(engineCapacity, model, year);
+    }
+    else
+    {
+        db.Bikes.Where(c => c.Id == id).First().Update(engineCapacity, model, year);
+    }
+    db.SaveChanges();
 }

@@ -1,5 +1,6 @@
 using Lab4;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Lab4.Database;
 
@@ -21,4 +22,15 @@ public class VehiclesDb : DbContext
 
     public DbSet<Car> Cars { get; set; }
     public DbSet<Bike> Bikes { get; set; }
+
+    public List<Vehicle> Vehicles
+    {
+        get
+        {
+            var list = new List<Vehicle>();
+            list.AddRange(Bikes.ToList());
+            list.AddRange(Cars.ToList());
+            return list;
+        }
+    }
 }
