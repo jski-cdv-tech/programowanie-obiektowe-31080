@@ -1,0 +1,59 @@
+@page "/invoices"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using eAccountant.Database
+@inject eAccountant.Database.Context db
+
+<PageTitle>Invoices</PageTitle>
+
+<h1>Invoices</h1>
+
+<p><a href="invoices/add">Add</a></p>
+
+@if (invoices == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Issuer tax ID</th>
+                <th>Receiver tax ID</th>
+                <th>Number</th>
+                <th>Price</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var invoice in invoices)
+            {
+                <tr>
+                    <td>@invoice.IssuerTaxId</td>
+                    <td>@invoice.ReceiverTaxId</td>
+                    <td>@invoice.Number</td>
+                    <td>@invoice.Price</td>
+                    <td><button type="button" class="btn-close" aria-label="Delete" @onclick="@(() => DeleteInvoice(invoice))"></button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private eAccountant.Database.Invoice[]? invoices;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        invoices = db.Invoices.ToArray();
+    }
+
+    private void DeleteInvoice(eAccountant.Database.Invoice invoice)
+    {
+        db.Remove(invoice);
+        db.SaveChanges();
+        invoices = db.Invoices.ToArray();
+    }
+}

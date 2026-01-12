@@ -1,0 +1,69 @@
+@page "/invoices/add"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using System.ComponentModel.DataAnnotations
+@using eAccountant.Database
+@inject eAccountant.Database.Context db
+@inject NavigationManager NavigationManager
+
+<PageTitle>Add new invoice</PageTitle>
+
+<h1>Add new invoice</h1>
+
+<EditForm Model="Fields" OnValidSubmit="Submit" FormName="invoices-add-form">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label for="issuerTaxId">Issuer tax ID</label>
+        <InputText class="form-control" id="issuerTaxId" @bind-Value="Fields!.IssuerTaxId" />
+    </div>
+    <div class="form-group">
+        <label for="receiverTaxId">Receiver tax ID</label>
+        <InputText class="form-control" id="receiverTaxId" @bind-Value="Fields!.ReceiverTaxId" />
+    </div>
+    <div class="form-group">
+        <label for="number">Number</label>
+        <InputText class="form-control" id="number" @bind-Value="Fields!.Number" />
+    </div>
+    <div class="form-group">
+        <label for="price">Price</label>
+        <InputNumber class="form-control" id="price" @bind-Value="Fields!.Price" />
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    [SupplyParameterFromForm]
+    private InvoiceFields? Fields { get; set; }
+
+    protected override void OnInitialized() => Fields ??= new();
+
+    private void Submit()
+    {
+        ArgumentNullException.ThrowIfNull(Fields);
+        ArgumentNullException.ThrowIfNull(Fields.Price);
+        db.Invoices.Add(new eAccountant.Database.Invoice {
+            IssuerTaxId = Fields.IssuerTaxId!,
+            ReceiverTaxId = Fields.ReceiverTaxId!,
+            Number = Fields.Number!,
+            Price = Fields.Price.Value,
+        });
+        db.SaveChanges();
+        NavigationManager.NavigateTo("/invoices");
+    }
+
+    public class InvoiceFields
+    {
+        [Required]
+        public string? IssuerTaxId { get; set; }
+
+        [Required]
+        public string? ReceiverTaxId { get; set; }
+
+        [Required]
+        public string? Number { get; set; }
+
+        [Required]
+        public float? Price { get; set; }
+    }
+}
