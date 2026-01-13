@@ -1,7 +1,62 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using System.ComponentModel.DataAnnotations
+@using eAccountant.Database
+@inject eAccountant.Database.Context db
+@inject NavigationManager NavigationManager
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Home</h1>
 
-Welcome to your new app.
+<EditForm Model="Fields" OnValidSubmit="Submit" FormName="settings-form">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label for="taxId">Tax ID</label>
+        <InputText class="form-control" id="taxId" @bind-Value="Fields!.TaxId" />
+    </div>
+    <div class="form-group">
+        <label for="isVat">Is registered VAT payer?</label>
+        <InputCheckbox class="form-control" id="receiverTaxId" @bind-Value="Fields!.WithVat" />
+    </div>
+    <div class="form-group">
+        <label for="pitMethod"></label>
+        <InputSelect class="form-control" id="pitMethod" @bind-value="Fields!.PitMethod">
+            <option value="">
+                Select PIT tax method
+            </option>
+            <option value="progressive" checked="@(Fields!.PitMethod == "progressive")">
+                Progressive
+            </option>
+            <option value="flat-rate" checked="@(Fields!.PitMethod == "flat-rate")">
+                Flat rate
+            </option>
+        </InputSelect>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    [SupplyParameterFromForm]
+    private ProfileFields? Fields { get; set; }
+
+    protected override void OnInitialized() => Fields ??= new();
+
+    private void Submit()
+    {
+    }
+
+    public class ProfileFields
+    {
+        [Required]
+        public string? TaxId { get; set; }
+
+        [Required]
+        public bool WithVat { get; set; }
+
+        [Required]
+        public string? PitMethod { get; set; }
+    }
+}

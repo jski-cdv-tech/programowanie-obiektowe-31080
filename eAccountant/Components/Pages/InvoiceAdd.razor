@@ -1,4 +1,4 @@
-@page "/invoices/add"
+@page "/invoice/add"
 @rendermode InteractiveServer
 @using Microsoft.EntityFrameworkCore
 @using System.ComponentModel.DataAnnotations
@@ -10,7 +10,7 @@
 
 <h1>Add new invoice</h1>
 
-<EditForm Model="Fields" OnValidSubmit="Submit" FormName="invoices-add-form">
+<EditForm Model="Fields" OnValidSubmit="Submit" FormName="invoice-add-form">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="form-group">
@@ -28,6 +28,16 @@
     <div class="form-group">
         <label for="price">Price</label>
         <InputNumber class="form-control" id="price" @bind-Value="Fields!.Price" />
+    </div>
+        <div class="form-group">
+        <label for="vat">VAT</label>
+        <InputNumber class="form-control" id="vat" @bind-Value="Fields!.Vat" />
+        <small class="form-text text-muted">Invoice can be exempted from VAT</small>
+    </div>
+        <div class="form-group">
+        <label for="pit">PIT</label>
+        <InputNumber class="form-control" id="pit" @bind-Value="Fields!.Pit" />
+        <small class="form-text text-muted">Makes sense only for self-issued invoices</small>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </EditForm>
@@ -47,6 +57,8 @@
             ReceiverTaxId = Fields.ReceiverTaxId!,
             Number = Fields.Number!,
             Price = Fields.Price.Value,
+            Pit = Fields.Pit,
+            Vat = Fields.Vat,
         });
         db.SaveChanges();
         NavigationManager.NavigateTo("/invoices");
@@ -65,5 +77,9 @@
 
         [Required]
         public float? Price { get; set; }
+
+        public float? Pit { get; set; }
+
+        public float? Vat { get; set; }
     }
 }

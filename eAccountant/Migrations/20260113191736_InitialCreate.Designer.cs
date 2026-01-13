@@ -10,7 +10,7 @@ using eAccountant.Database;
 namespace eAccountant.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20260112174501_InitialCreate")]
+    [Migration("20260113191736_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -29,9 +29,6 @@ namespace eAccountant.Migrations
 
                     b.Property<string>("Number")
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsVatReverseCharge")
-                        .HasColumnType("INTEGER");
 
                     b.Property<float?>("Pit")
                         .HasColumnType("REAL");

@@ -27,9 +27,6 @@ namespace eAccountant.Migrations
                     b.Property<string>("Number")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsVatReverseCharge")
-                        .HasColumnType("INTEGER");
-
                     b.Property<float?>("Pit")
                         .HasColumnType("REAL");
 

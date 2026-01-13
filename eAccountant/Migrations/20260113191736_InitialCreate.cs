@@ -18,7 +18,6 @@ namespace eAccountant.Migrations
                     ReceiverTaxId = table.Column<string>(type: "TEXT", nullable: false),
                     Number = table.Column<string>(type: "TEXT", nullable: false),
                     Price = table.Column<float>(type: "REAL", nullable: false),
-                    IsVatReverseCharge = table.Column<bool>(type: "INTEGER", nullable: false),
                     Pit = table.Column<float>(type: "REAL", nullable: true),
                     Vat = table.Column<float>(type: "REAL", nullable: true)
                 },

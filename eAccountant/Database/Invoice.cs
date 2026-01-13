@@ -9,7 +9,6 @@ public class Invoice
     public required string ReceiverTaxId { get; init; }
     public required string Number { get; init; }
     public required float Price { get; init; }
-    public bool IsVatReverseCharge { get; init; } = false;
     // PIT makes sense only in income invoices
     public float? Pit { get; init; }
     // Can be skipped, if contractor isn't a registered VAT payer

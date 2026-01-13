@@ -8,8 +8,6 @@
 
 <h1>Invoices</h1>
 
-<p><a href="invoices/add">Add</a></p>
-
 @if (invoices == null)
 {
     <p><em>Loading...</em></p>
@@ -23,6 +21,8 @@ else
                 <th>Receiver tax ID</th>
                 <th>Number</th>
                 <th>Price</th>
+                <th>VAT</th>
+                <th>PIT</th>
                 <th></th>
             </tr>
         </thead>
@@ -34,6 +34,8 @@ else
                     <td>@invoice.ReceiverTaxId</td>
                     <td>@invoice.Number</td>
                     <td>@invoice.Price</td>
+                    <td>@invoice.Vat</td>
+                    <td>@invoice.Pit</td>
                     <td><button type="button" class="btn-close" aria-label="Delete" @onclick="@(() => DeleteInvoice(invoice))"></button></td>
                 </tr>
             }

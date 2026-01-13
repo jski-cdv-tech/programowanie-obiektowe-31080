@@ -28,6 +28,8 @@ builder.Services.AddDbContextFactory<eAccountant.Database.Context>(options =>
                 ReceiverTaxId = "0000000002",
                 Number = "FV/2026/01",
                 Price = 150,
+                Pit = 0.12f,
+                Vat = 0.23f,
             });
         }
         context.SaveChanges();
