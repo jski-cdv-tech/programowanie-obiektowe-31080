@@ -15,22 +15,45 @@ builder.Services.AddDbContextFactory<eAccountant.Database.Context>(options =>
     options.UseSqlite($"Data Source={path}.db");
     options.UseSeeding((context, _) =>
     {
-        var invoice = context.Set<Invoice>().FirstOrDefault(i =>
-            i.IssuerTaxId == "0000000001"
-            && i.ReceiverTaxId == "0000000002"
-            && i.Number == "FV/2026/01"
-        );
-        if (invoice == null)
+        var invoices = new List<Invoice>
         {
-            context.Set<Invoice>().Add(new Invoice
-            {
+            new() {
                 IssuerTaxId = "0000000001",
                 ReceiverTaxId = "0000000002",
-                Number = "FV/2026/01",
+                Number = "FV/2025/10",
                 Price = 150,
                 Pit = 0.12f,
                 Vat = 0.23f,
-            });
+            },
+            new() {
+                IssuerTaxId = "0000000003",
+                ReceiverTaxId = "0000000001",
+                Number = "2025/9",
+                Price = 160,
+            },
+        };
+        foreach (var invoice in invoices)
+        {
+            if (null == context.Set<Invoice>().FirstOrDefault(i =>
+                i.IssuerTaxId == invoice.IssuerTaxId
+                && i.ReceiverTaxId == invoice.ReceiverTaxId
+                && i.Number == invoice.Number))
+            {
+                context.Set<Invoice>().Add(invoice);
+            }
+        }
+        var settings = new List<Setting>
+        {
+            new() { Name = "TaxId", Value = "0000000001" },
+            new() { Name = "IsRegisteredVatPayer", Value = "1" },
+            new() { Name = "PitMethod", Value = "Progressive" },
+        };
+        foreach (var setting in settings)
+        {
+            if (null == context.Set<Setting>().FirstOrDefault(i => i.Name == setting.Name))
+            {
+                context.Set<Setting>().Add(setting);
+            }
         }
         context.SaveChanges();
     });

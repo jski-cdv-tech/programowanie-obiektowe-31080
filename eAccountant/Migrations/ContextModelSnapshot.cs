@@ -40,6 +40,20 @@ namespace eAccountant.Migrations
 
                     b.ToTable("Invoices");
                 });
+
+            modelBuilder.Entity("eAccountant.Database.Setting", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("Settings");
+                });
 #pragma warning restore 612, 618
         }
     }

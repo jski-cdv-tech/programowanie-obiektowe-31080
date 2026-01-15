@@ -1,18 +1,21 @@
+using Microsoft.EntityFrameworkCore.Diagnostics;
+
 namespace eAccountant;
 
 class ProgressivePitTaxCalculator : ITaxCalculator
 {
-    protected float _gross = 0;
+    protected float _gross_cost = 0;
+    protected float _gross_income = 0;
     public float Tax
     {
         get {
-            var gross = _gross;
+            var gross = Math.Max(0, _gross_income - 3600) - _gross_cost;
             var tax = 0f;
             if (gross > 120_000) {
                 tax += (gross - 120_000) * 0.32f;
                 gross = 120_000;
             }
-            tax += gross * 0.12f - 3600;
+            tax += gross * 0.12f;
             return tax;
         }
     }
@@ -24,9 +27,9 @@ class ProgressivePitTaxCalculator : ITaxCalculator
             price -= price * invoice.Vat.Value;
         }
         if (isCost) {
-            _gross -= price;
+            _gross_cost += price;
         } else {
-            _gross += price;
+            _gross_income += price;
         }
     }
 }

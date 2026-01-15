@@ -25,6 +25,18 @@ namespace eAccountant.Migrations
                 {
                     table.PrimaryKey("PK_Invoices", x => new { x.IssuerTaxId, x.ReceiverTaxId, x.Number });
                 });
+
+            migrationBuilder.CreateTable(
+                name: "Settings",
+                columns: table => new
+                {
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Settings", x => x.Name);
+                });
         }
 
         /// <inheritdoc />
@@ -32,6 +44,9 @@ namespace eAccountant.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Invoices");
+
+            migrationBuilder.DropTable(
+                name: "Settings");
         }
     }
 }

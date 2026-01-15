@@ -8,7 +8,27 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Home</h1>
+<h1>Taxes</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tax</th>
+            <th>Balance</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var tax in Taxes)
+        {
+            <tr>
+                <td>@tax.Name</td>
+                <td>@tax.Tax</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h1>Settings</h1>
 
 <EditForm Model="Fields" OnValidSubmit="Submit" FormName="settings-form">
     <DataAnnotationsValidator />
@@ -18,8 +38,8 @@
         <InputText class="form-control" id="taxId" @bind-Value="Fields!.TaxId" />
     </div>
     <div class="form-group">
-        <label for="isVat">Is registered VAT payer?</label>
-        <InputCheckbox class="form-control" id="receiverTaxId" @bind-Value="Fields!.WithVat" />
+        <label class="form-check-label" for="isVat">Is registered VAT payer?</label>
+        <InputCheckbox class="form-check-input" id="receiverTaxId" @bind-Value="Fields!.WithVat" />
     </div>
     <div class="form-group">
         <label for="pitMethod"></label>
@@ -27,12 +47,12 @@
             <option value="">
                 Select PIT tax method
             </option>
-            <option value="progressive" checked="@(Fields!.PitMethod == "progressive")">
-                Progressive
-            </option>
-            <option value="flat-rate" checked="@(Fields!.PitMethod == "flat-rate")">
-                Flat rate
-            </option>
+            @foreach (var pitMethod in Enum.GetValues<PitMethod>())
+            {
+                <option value="@pitMethod" checked="@(Fields!.PitMethod == pitMethod)">
+                    @pitMethod
+                </option>
+            }
         </InputSelect>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
@@ -42,11 +62,86 @@
     [SupplyParameterFromForm]
     private ProfileFields? Fields { get; set; }
 
-    protected override void OnInitialized() => Fields ??= new();
+    private List<ITaxCalculator> Taxes = new();
+
+    protected override void OnInitialized()
+    {
+        Fields ??= new();
+        var taxId = db.Settings.FirstOrDefault(i => i.Name == "TaxId");
+        if (taxId != null) {
+            Fields.TaxId = taxId.Value;
+        }
+        var isRegisteredVatPayer = db.Settings.FirstOrDefault(i => i.Name == "IsRegisteredVatPayer");
+        if (isRegisteredVatPayer != null) {
+            if (isRegisteredVatPayer.Value == "0")
+            {
+                Fields.WithVat = false;
+            } else {
+                Fields.WithVat = true;
+            }
+        }
+        var pitMethod = db.Settings.FirstOrDefault(i => i.Name == "PitMethod");
+        if (pitMethod != null) {
+            Fields.PitMethod = Enum.Parse<PitMethod>(pitMethod.Value);
+        }
+        CalculateTaxes();
+    }
+
+    private void CalculateTaxes()
+    {
+        var taxes = new List<ITaxCalculator>();
+        switch (Fields!.PitMethod) {
+            case PitMethod.Progressive:
+                taxes.Add(new ProgressivePitTaxCalculator());
+                break;
+            case PitMethod.FlatRate:
+                taxes.Add(new FlatRatePitTaxCalculator());
+                break;
+        }
+        if (Fields.WithVat) {
+            taxes.Add(new VatTaxCalculator());
+        }
+        foreach (var invoice in db.Invoices.ToList())
+        {
+            foreach (var tax in taxes)
+            {
+                if (invoice.IssuerTaxId == Fields.TaxId)
+                {
+                    tax.ProcessInvoice(invoice, false);
+                } else {
+                    tax.ProcessInvoice(invoice, true);
+                }
+            }
+        }
+        Taxes = taxes;
+    }
 
     private void Submit()
     {
+        var taxId = db.Settings.FirstOrDefault(i => i.Name == "TaxId");
+        if (taxId == null) {
+            db.Settings.Add(new Setting { Name = "TaxId", Value = Fields!.TaxId!});
+        } else {
+            taxId.Value = Fields!.TaxId!;
+        }
+        var isRegisteredVatPayer = db.Settings.FirstOrDefault(i => i.Name == "IsRegisteredVatPayer");
+        if (isRegisteredVatPayer == null) {
+            db.Settings.Add(new Setting { Name = "IsRegisteredTaxPayer", Value = Fields.WithVat ? "1" : "0" });
+        } else {
+            isRegisteredVatPayer.Value = Fields.WithVat ? "1" : "0";
+        }
+        var pitMethod = db.Settings.FirstOrDefault(i => i.Name == "PitMethod");
+        var pitMethodName = Enum.GetName<PitMethod>(Fields.PitMethod!.Value)!;
+        if (pitMethod == null) {
+            db.Settings.Add(new Setting { Name = "PitMethod", Value = pitMethodName});
+        } else {
+            pitMethod.Value = pitMethodName;
+        }
+        db.SaveChanges();
+        CalculateTaxes();
     }
+
+    public enum PitMethod { Progressive, FlatRate }
 
     public class ProfileFields
     {
@@ -57,6 +152,6 @@
         public bool WithVat { get; set; }
 
         [Required]
-        public string? PitMethod { get; set; }
+        public PitMethod? PitMethod { get; set; }
     }
 }

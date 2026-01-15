@@ -10,7 +10,7 @@ using eAccountant.Database;
 namespace eAccountant.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20260113191736_InitialCreate")]
+    [Migration("20260115162527_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -42,6 +42,20 @@ namespace eAccountant.Migrations
                     b.HasKey("IssuerTaxId", "ReceiverTaxId", "Number");
 
                     b.ToTable("Invoices");
+                });
+
+            modelBuilder.Entity("eAccountant.Database.Setting", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("Settings");
                 });
 #pragma warning restore 612, 618
         }
