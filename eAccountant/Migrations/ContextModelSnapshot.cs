@@ -18,13 +18,16 @@ namespace eAccountant.Migrations
 
             modelBuilder.Entity("eAccountant.Database.Invoice", b =>
                 {
-                    b.Property<string>("IssuerTaxId")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("ReceiverTaxId")
+                    b.Property<string>("IssuerTaxId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Number")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<float?>("Pit")
@@ -33,10 +36,14 @@ namespace eAccountant.Migrations
                     b.Property<float>("Price")
                         .HasColumnType("REAL");
 
+                    b.Property<string>("ReceiverTaxId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<float?>("Vat")
                         .HasColumnType("REAL");
 
-                    b.HasKey("IssuerTaxId", "ReceiverTaxId", "Number");
+                    b.HasKey("Id");
 
                     b.ToTable("Invoices");
                 });

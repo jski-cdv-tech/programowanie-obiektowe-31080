@@ -1,4 +1,5 @@
-@page "/invoice/add"
+@page "/invoices/add"
+@page "/invoice/{Id:int?}"
 @rendermode InteractiveServer
 @using Microsoft.EntityFrameworkCore
 @using System.ComponentModel.DataAnnotations
@@ -43,23 +44,47 @@
 </EditForm>
 
 @code {
+    [Parameter]
+    public int? Id { get; set; }
+
     [SupplyParameterFromForm]
     private InvoiceFields? Fields { get; set; }
 
-    protected override void OnInitialized() => Fields ??= new();
+    protected override void OnInitialized() {
+        Fields ??= new();
+        if (Id.HasValue) {
+            var invoice = db.Invoices.First(i => Id.Value == i.Id)!;
+            Fields.IssuerTaxId = invoice.IssuerTaxId;
+            Fields.ReceiverTaxId = invoice.ReceiverTaxId;
+            Fields.Number = invoice.Number;
+            Fields.Price = invoice.Price;
+            Fields.Pit = invoice.Pit;
+            Fields.Vat = invoice.Vat;
+        }
+    }
 
     private void Submit()
     {
         ArgumentNullException.ThrowIfNull(Fields);
         ArgumentNullException.ThrowIfNull(Fields.Price);
-        db.Invoices.Add(new eAccountant.Database.Invoice {
-            IssuerTaxId = Fields.IssuerTaxId!,
-            ReceiverTaxId = Fields.ReceiverTaxId!,
-            Number = Fields.Number!,
-            Price = Fields.Price.Value,
-            Pit = Fields.Pit,
-            Vat = Fields.Vat,
-        });
+        if (Id.HasValue) {
+            var invoice = db.Invoices.First(i => Id.Value == i.Id)!;
+            invoice.IssuerTaxId = Fields.IssuerTaxId!;
+            invoice.ReceiverTaxId = Fields.ReceiverTaxId!;
+            invoice.Number = Fields.Number!;
+            invoice.Price = Fields.Price.Value;
+            invoice.Pit = Fields.Pit;
+            invoice.Vat = Fields.Vat;
+        } else {
+            db.Invoices.Add(new Database.Invoice {
+                IssuerTaxId = Fields.IssuerTaxId!,
+                ReceiverTaxId = Fields.ReceiverTaxId!,
+                Number = Fields.Number!,
+                Price = Fields.Price.Value,
+                Pit = Fields.Pit,
+                Vat = Fields.Vat,
+            });
+        }
         db.SaveChanges();
         NavigationManager.NavigateTo("/invoices");
     }

@@ -14,6 +14,8 @@ namespace eAccountant.Migrations
                 name: "Invoices",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
                     IssuerTaxId = table.Column<string>(type: "TEXT", nullable: false),
                     ReceiverTaxId = table.Column<string>(type: "TEXT", nullable: false),
                     Number = table.Column<string>(type: "TEXT", nullable: false),
@@ -23,7 +25,7 @@ namespace eAccountant.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Invoices", x => new { x.IssuerTaxId, x.ReceiverTaxId, x.Number });
+                    table.PrimaryKey("PK_Invoices", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
